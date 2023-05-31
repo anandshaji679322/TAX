@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TAX Recived</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        #data-table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #data-table th, #data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #data-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Excel to Table</h1>
+    <table id="data-table"></table>
+
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script>
+        var url = 'microproject.xlsx';
+        var sheetName = 'Sheet1';
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'arraybuffer';
+
+        xhr.onload = function(e) {
+            var data = new Uint8Array(xhr.response);
+            var workbook = XLSX.read(data, { type: 'array' });
+
+            var worksheet = workbook.Sheets[sheetName];
+            var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+            var table = document.getElementById('data-table');
+            table.innerHTML = '';
+
+            // Generate the table header
+            var thead = document.createElement('thead');
+            var headerRow = document.createElement('tr');
+            jsonData[0].forEach(function(cellData) {
+                var th = document.createElement('th');
+                th.textContent = cellData;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Generate the table rows
+            var tbody = document.createElement('tbody');
+            for (var i = 1; i < jsonData.length; i++) {
+                var row = document.createElement('tr');
+                jsonData[i].forEach(function(cellData) {
+                    var td = document.createElement('td');
+                    td.textContent = cellData;
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
+            }
+            table.appendChild(tbody);
+        };
+
+        xhr.send();
+    </script>
+</body>
+</html>
